@@ -126,7 +126,7 @@ export function Navbar() {
               <Button variant="ghost" size="sm">Sign in</Button>
             </Link>
             <Link href="/signup">
-              <Button variant="primary" size="sm">Get started</Button>
+              <Button variant="default" size="sm">Get started</Button>
             </Link>
           </div>
 
@@ -225,7 +225,7 @@ export function Navbar() {
             <Button variant="outline" size="lg" className="w-full">Sign in</Button>
           </Link>
           <Link href="/signup" onClick={() => setMobileOpen(false)}>
-            <Button variant="primary" size="lg" className="w-full">Get started</Button>
+            <Button variant="default" size="lg" className="w-full">Get started</Button>
           </Link>
         </div>
       </div>

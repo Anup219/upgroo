@@ -61,7 +61,7 @@ export default function NotificationsPage() {
             <Button variant="ghost" size="sm" onClick={markAllAsRead} className="h-8 text-xs flex items-center gap-1.5">
               <Check className="h-3.5 w-3.5" /> Mark all as read
             </Button>
-            <Button variant="danger" size="sm" onClick={clearAll} className="h-8 text-xs flex items-center gap-1.5 bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20">
+            <Button variant="destructive" size="sm" onClick={clearAll} className="h-8 text-xs flex items-center gap-1.5 bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20">
               <Trash2 className="h-3.5 w-3.5" /> Clear all
             </Button>
           </div>

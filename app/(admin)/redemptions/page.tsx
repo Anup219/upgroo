@@ -44,8 +44,8 @@ export default function RedemptionsPage() {
                   <TableCell>{rd.amount}</TableCell>
                   <TableCell><Badge variant="warning">{rd.status}</Badge></TableCell>
                   <TableCell className="text-right space-x-2">
-                    <Button variant="danger" size="sm">Reject</Button>
-                    <Button variant="primary" size="sm">Approve</Button>
+                    <Button variant="destructive" size="sm">Reject</Button>
+                    <Button variant="default" size="sm">Approve</Button>
                   </TableCell>
                 </TableRow>
               ))}

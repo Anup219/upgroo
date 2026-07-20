@@ -272,7 +272,7 @@ export default function FAQPage() {
                 <span>Email Support</span>
               </Button>
             </Link>
-            <Button variant="primary" className="w-full sm:w-auto flex items-center justify-center gap-2">
+            <Button variant="default" className="w-full sm:w-auto flex items-center justify-center gap-2">
               <MessageSquare className="h-4 w-4" />
               <span>Live Chat Support</span>
             </Button>
