@@ -163,7 +163,7 @@ export default function EarnPage() {
                   }`}>
                     <WallIcon className="h-5 w-5" />
                   </div>
-                  <Badge variant={isActive ? "primary" : "ghost"} className="text-xs">
+                  <Badge variant={isActive ? "default" : "outline"} className="text-xs">
                     {isActive ? wall.type : "Coming Soon"}
                   </Badge>
                 </div>
