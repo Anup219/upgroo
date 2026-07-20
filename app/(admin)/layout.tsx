@@ -2,6 +2,7 @@ import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import Link from "next/link";
 import { Users, LayoutDashboard, Ticket, ShieldAlert, History, LifeBuoy } from "lucide-react";
 
+// Local sidebar component (no named export)
 function AdminSidebar() {
   const navItems = [
     { name: "Redemptions Queue", href: "/redemptions", icon: Ticket },
