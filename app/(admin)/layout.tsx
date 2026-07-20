@@ -1,5 +1,5 @@
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
-import { AdminSidebar as SidebarComponent } from "@/components/layout/AdminSidebar";
+import AdminNav from "@/components/layout/AdminSidebar";
 
 export default function AdminLayout({
   children,
@@ -8,7 +8,7 @@ export default function AdminLayout({
 }) {
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--color-pk-bg)]">
-      <SidebarComponent />
+      <AdminNav />
       <div className="flex flex-1 flex-col overflow-hidden">
         <DashboardHeader title="Admin Dashboard" />
         <main className="flex-1 overflow-y-auto p-8">

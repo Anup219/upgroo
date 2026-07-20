@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Users, LayoutDashboard, Ticket } from "lucide-react";
 
-export function AdminSidebar() {
+export default function AdminSidebar() {
   const navItems = [
     { name: "Redemptions Queue", href: "/redemptions", icon: Ticket },
     { name: "Overview (Coming Soon)", href: "#", icon: LayoutDashboard },
