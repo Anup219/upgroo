@@ -1,0 +1,189 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Inter Fallback", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* ── Startup Landing Design Tokens ───────────────────────────── */
+
+  /* Typography */
+  --font-size-xs:   12px;
+  --font-size-sm:   14px;
+  --font-size-md:   16px;
+  --font-size-lg:   18px;
+  --font-size-xl:   20px;
+  --font-size-2xl:  22px;
+  --font-size-3xl:  24px;
+  --font-size-4xl:  32px;
+
+  /* Spacing */
+  --space-1:  4px;
+  --space-2:  6px;
+  --space-3:  8px;
+  --space-4:  10px;
+  --space-5:  12px;
+  --space-6:  14.32px;
+  --space-7:  16px;
+  --space-8:  20px;
+  --space-9:  24px;
+  --space-10: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Radius */
+  --radius-xs: 6px;
+  --radius-sm: 12px;
+  --radius-md: 37px;
+  --radius-lg: 9999px;
+  --radius-xl: 26843500px;
+
+  /* Motion */
+  --motion-instant: 150ms;
+  --motion-fast:    200ms;
+
+  /* ── Semantic Color Tokens ─────────────────────────────────── */
+
+  /* Text */
+  --color-text-primary:   #1a1a1a;
+  --color-text-secondary: #ffffff;
+  --color-text-inverse:   #6b7280;
+  --color-text-muted:     #9ca3af;
+  --color-text-accent:    #e05a22;
+
+  /* Surfaces */
+  --color-surface-base:   #000000;
+  --color-surface-page:   #f8fafc;
+  --color-surface-card:   #ffffff;
+  --color-surface-nav:    rgba(248, 250, 252, 0.88);
+  --color-surface-raised: #f1f5f9;
+  --color-surface-strong: #e2e8f0;
+
+  /* Borders */
+  --color-border:         rgba(15, 23, 42, 0.08);
+  --color-border-strong:  rgba(15, 23, 42, 0.14);
+
+  /* Accent */
+  --color-accent:         #e05a22;
+  --color-accent-hover:   #c94e1b;
+  --color-accent-muted:   rgba(224, 90, 34, 0.10);
+  --color-accent-secondary: #d4940a;
+
+  /* Status */
+  --color-success:        #10b981;
+  --color-warning:        #f59e0b;
+  --color-danger:         #ef4444;
+
+  /* Focus */
+  --color-focus-ring:     #e05a22;
+
+  /* shadcn mapping */
+  --color-background:     var(--color-surface-page);
+  --color-foreground:     var(--color-text-primary);
+  --color-primary:        var(--color-accent);
+  --color-primary-foreground: #ffffff;
+  --color-secondary:      var(--color-surface-raised);
+  --color-secondary-foreground: var(--color-text-primary);
+  --color-muted:          var(--color-surface-raised);
+  --color-muted-foreground: var(--color-text-muted);
+  --color-accent-ui:      var(--color-surface-raised);
+  --color-accent-ui-foreground: var(--color-text-primary);
+  --color-popover:        var(--color-surface-card);
+  --color-popover-foreground: var(--color-text-primary);
+  --color-border-ui:      var(--color-border);
+  --color-input:          var(--color-border);
+  --color-ring:           var(--color-accent);
+
+  /* Shadows */
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-3:
+    inset 0 1px 1px 2px rgba(255, 255, 255, 0.4),
+    inset 0 -1px 5px 2px rgba(255, 255, 255, 0.4),
+    0 10px 20px rgba(0, 0, 0, 0.1),
+    0 3px 6px rgba(0, 0, 0, 0.05),
+    0 4px 8px rgba(3, 7, 18, 0.06),
+    0 2px 4px rgba(3, 7, 18, 0.06),
+    0 0px 0px 1px rgba(3, 7, 18, 0.08);
+
+  /* ── Legacy aliases (keep dashboard pages working) ───────────── */
+  --color-pk-bg:               var(--color-surface-page);
+  --color-pk-surface:          var(--color-surface-card);
+  --color-pk-surface-elevated: #e8e7e3;
+  --color-pk-border:           var(--color-border);
+  --color-pk-border-strong:    var(--color-border-strong);
+  --color-pk-text-primary:     var(--color-text-primary);
+  --color-pk-text-secondary:   var(--color-text-inverse);
+  --color-pk-text-tertiary:    #9ca3af;
+  --color-pk-accent:           var(--color-accent);
+  --color-pk-accent-hover:     var(--color-accent-hover);
+  --color-pk-accent-muted:     var(--color-accent-muted);
+  --color-pk-success:          var(--color-success);
+  --color-pk-warning:          var(--color-warning);
+  --color-pk-danger:           var(--color-danger);
+}
+
+.dark {
+  --color-text-primary:   #f5f5f4;
+  --color-text-secondary: #0c0a09;
+  --color-text-inverse:   #a8a29e;
+  --color-text-muted:     #78716c;
+  --color-text-accent:    #a5b4fc;
+
+  --color-surface-base:   #ffffff;
+  --color-surface-page:   #0c0a09;
+  --color-surface-card:   #1c1917;
+  --color-surface-nav:    rgba(12, 10, 9, 0.85);
+  --color-surface-raised: #292524;
+  --color-surface-strong: #44403c;
+
+  --color-border:         rgba(255, 255, 255, 0.08);
+  --color-border-strong:  rgba(255, 255, 255, 0.16);
+
+  --color-accent-muted:   rgba(99, 102, 241, 0.15);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-surface-page);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-md);
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Reduce motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-lg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* Focus ring utility */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
