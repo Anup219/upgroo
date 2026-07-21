@@ -43,12 +43,10 @@ export default function LoginPage() {
 
     try {
       await signIn(email, password);
-      router.push("/dashboard");
-      router.refresh();
+      window.location.href = "/dashboard";
     } catch (err: any) {
       console.error("Sign-in error:", err);
       setError(getFirebaseErrorMessage(err.code));
-    } finally {
       setIsLoading(false);
     }
   };
