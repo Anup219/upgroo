@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
-import { walletService } from "@/services/walletService";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -43,16 +42,15 @@ export default function UserDashboardPage() {
 
   useEffect(() => {
     if (!user?.uid) return;
-    const uid = user.uid;
 
     (async () => {
       try {
-        const [w, txs] = await Promise.all([
-          walletService.getWalletBalance(uid),
-          walletService.getTransactionHistory(uid, 5),
-        ]);
-        setWallet(w);
-        setTransactions(txs || []);
+        const res = await fetch("/api/wallet?limit=5");
+        if (res.ok) {
+          const data = await res.json();
+          setWallet(data.wallet);
+          setTransactions(data.transactions || []);
+        }
       } catch (e) {
         console.error("Dashboard data fetch error", e);
       } finally {

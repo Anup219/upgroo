@@ -77,7 +77,7 @@ export default function RedemptionsPage() {
                   <TableCell>
                     {rd.status === "PENDING" && <Badge variant="warning">PENDING</Badge>}
                     {rd.status === "APPROVED" && <Badge variant="success">APPROVED</Badge>}
-                    {rd.status === "REJECTED" && <Badge variant="destructive">REJECTED</Badge>}
+                    {rd.status === "REJECTED" && <Badge variant="danger">REJECTED</Badge>}
                   </TableCell>
                   <TableCell className="text-right space-x-2">
                     {rd.status === "PENDING" ? (

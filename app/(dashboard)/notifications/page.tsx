@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { notificationService } from "@/services/notificationService";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -41,7 +40,8 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     if (!user?.uid) return;
-    notificationService.getUserNotifications(user.uid)
+    fetch("/api/notifications")
+      .then((res) => (res.ok ? res.json() : []))
       .then((data) => setNotifications(data || []))
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -49,30 +49,31 @@ export default function NotificationsPage() {
 
   const markAllAsRead = async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    if (user?.uid) {
-      for (const n of notifications.filter((n) => !n.read)) {
-        await notificationService.markAsRead(n.id).catch(() => {});
-      }
-    }
+    fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ all: true }),
+    }).catch(() => {});
   };
 
   const markAsRead = async (id: string) => {
-    setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
-    await notificationService.markAsRead(id).catch(() => {});
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    }).catch(() => {});
   };
 
   const clearAll = async () => {
-    const ids = notifications.map((n) => n.id);
     setNotifications([]);
-    for (const id of ids) {
-      await notificationService.deleteNotification(id).catch(() => {});
-    }
+    fetch("/api/notifications", { method: "DELETE" }).catch(() => {});
   };
 
   const deleteNotification = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setNotifications((prev) => prev.filter((n) => n.id !== id));
-    await notificationService.deleteNotification(id).catch(() => {});
+    fetch(`/api/notifications?id=${id}`, { method: "DELETE" }).catch(() => {});
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { walletService } from "@/services/walletService";
 import { WalletCard } from "@/components/dashboard/WalletCard";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
@@ -29,22 +28,22 @@ export default function WalletPage() {
 
   useEffect(() => {
     if (!user?.uid) return;
-    const uid = user.uid;
 
     (async () => {
       try {
-        const [w, txs] = await Promise.all([
-          walletService.getWalletBalance(uid),
-          walletService.getTransactionHistory(uid, 50),
-        ]);
-        if (w) {
-          setWalletData({
-            availablePoints: w.available_points ?? 0,
-            pendingPoints: w.pending_points ?? 0,
-            redeemedPoints: w.redeemed_points ?? 0,
-          });
+        const res = await fetch("/api/wallet?limit=50");
+        if (res.ok) {
+          const data = await res.json();
+          const w = data.wallet;
+          if (w) {
+            setWalletData({
+              availablePoints: w.available_points ?? w.availablePoints ?? 0,
+              pendingPoints: w.pending_points ?? w.pendingPoints ?? 0,
+              redeemedPoints: w.redeemed_points ?? w.redeemedPoints ?? 0,
+            });
+          }
+          setTransactions(data.transactions || []);
         }
-        setTransactions(txs || []);
       } catch (e) {
         console.error("Wallet fetch error", e);
       } finally {
