@@ -73,7 +73,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (email: string, pass: string) => {
-    await signInWithEmailAndPassword(auth, email, pass);
+    const credential = await signInWithEmailAndPassword(auth, email, pass);
+    const token = await credential.user.getIdToken(true);
+    await fetch("/api/auth/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
   };
 
   const signUp = async (email: string, pass: string, name: string) => {
@@ -82,6 +88,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await updateProfile(credential.user, { displayName: name });
     }
     await sendEmailVerification(credential.user);
+    const token = await credential.user.getIdToken(true);
+    await fetch("/api/auth/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
   };
 
   const signOut = async () => {
