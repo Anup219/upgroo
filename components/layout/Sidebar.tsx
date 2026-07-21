@@ -16,8 +16,7 @@ import {
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { signOut, user } = useAuth();
-  const isAdmin = true; // Set to true for previewing admin pages
+  const { signOut, user, isAdmin } = useAuth();
 
   const navItems = [
     { name: "Dashboard",   href: "/dashboard",     icon: LayoutDashboard },

@@ -1,21 +1,31 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+import { ADMIN_EMAILS } from "@/lib/config";
+
+
 export function middleware(request: NextRequest) {
   const session = request.cookies.get("session");
-  const isAuthRoute = request.nextUrl.pathname.startsWith("/login") || 
-                      request.nextUrl.pathname.startsWith("/signup") ||
-                      request.nextUrl.pathname.startsWith("/reset-password");
-  
-  const isDashboardRoute = request.nextUrl.pathname.startsWith("/dashboard") ||
-                           request.nextUrl.pathname.startsWith("/earn") ||
-                           request.nextUrl.pathname.startsWith("/redeem") ||
-                           request.nextUrl.pathname.startsWith("/wallet") ||
-                           request.nextUrl.pathname.startsWith("/notifications");
-  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin") ||
-                       request.nextUrl.pathname.startsWith("/redemptions");
+  const { pathname } = request.nextUrl;
 
-  // Allow unauthenticated users on auth routes
+  const isAuthRoute =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/reset-password");
+
+  const isDashboardRoute =
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/earn") ||
+    pathname.startsWith("/redeem") ||
+    pathname.startsWith("/wallet") ||
+    pathname.startsWith("/notifications") ||
+    pathname.startsWith("/settings");
+
+  const isAdminRoute =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/redemptions");
+
+  // Redirect authenticated users away from auth pages
   if (isAuthRoute) {
     if (session) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
@@ -23,13 +33,21 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Protect dashboard routes (temporarily bypassed for preview)
+  // Protect dashboard routes — redirect to login if no session
   if (isDashboardRoute) {
+    if (!session) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
     return NextResponse.next();
   }
-  
-  // Protect admin routes (temporarily bypassed for preview)
+
+  // Protect admin routes — redirect to login if no session
   if (isAdminRoute) {
+    if (!session) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    // Full admin claim verification happens server-side in the page/layout.
+    // Middleware just ensures the user is authenticated.
     return NextResponse.next();
   }
 
@@ -43,10 +61,11 @@ export const config = {
     "/redeem/:path*",
     "/wallet/:path*",
     "/notifications/:path*",
+    "/settings/:path*",
     "/redemptions/:path*",
     "/admin/:path*",
     "/login",
     "/signup",
-    "/reset-password"
+    "/reset-password",
   ],
 };

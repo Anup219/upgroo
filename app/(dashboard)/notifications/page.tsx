@@ -1,59 +1,90 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { notificationService } from "@/services/notificationService";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { Check, Trash2, Coins, Gift, Info, Trash } from "lucide-react";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { Bell, Check, Trash2, Coins, Gift, Info, Loader2 } from "lucide-react";
 
 interface Notification {
   id: string;
   type: string;
   title: string;
   message: string;
-  time: string;
+  created_at: string;
   read: boolean;
 }
 
+function timeAgo(iso: string): string {
+  const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (seconds < 60) return "Just now";
+  const mins = Math.floor(seconds / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+}
+
+const iconMap: Record<string, React.ElementType> = {
+  EARN: Coins,
+  REDEEM: Gift,
+  SYSTEM: Info,
+};
+
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>([
-    { id: "1", type: "EARN", title: "Points Earned!", message: "You earned 1,500 points from Lootably.", time: "2 hours ago", read: false },
-    { id: "2", type: "REDEEM", title: "Redemption Approved", message: "Your Amazon Pay gift card is ready.", time: "1 day ago", read: true },
-    { id: "3", type: "SYSTEM", title: "Welcome to Upgroo", message: "Thanks for joining! Head over to the Earn page to start.", time: "2 days ago", read: true },
-  ]);
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const markAllAsRead = () => {
+  useEffect(() => {
+    if (!user?.uid) return;
+    notificationService.getUserNotifications(user.uid)
+      .then((data) => setNotifications(data || []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [user?.uid]);
+
+  const markAllAsRead = async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
-
-  const markAsRead = (id: string) => {
-    setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
-  };
-
-  const clearAll = () => {
-    setNotifications([]);
-  };
-
-  const deleteNotification = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  };
-
-  const getIcon = (type: string) => {
-    switch (type) {
-      case "EARN": return <Coins className="h-4.5 w-4.5 text-[var(--color-pk-accent)]" />;
-      case "REDEEM": return <Gift className="h-4.5 w-4.5 text-emerald-500" />;
-      default: return <Info className="h-4.5 w-4.5 text-[var(--color-pk-text-secondary)]" />;
+    if (user?.uid) {
+      for (const n of notifications.filter((n) => !n.read)) {
+        await notificationService.markAsRead(n.id).catch(() => {});
+      }
     }
   };
 
+  const markAsRead = async (id: string) => {
+    setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
+    await notificationService.markAsRead(id).catch(() => {});
+  };
+
+  const clearAll = async () => {
+    const ids = notifications.map((n) => n.id);
+    setNotifications([]);
+    for (const id of ids) {
+      await notificationService.deleteNotification(id).catch(() => {});
+    }
+  };
+
+  const deleteNotification = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    await notificationService.deleteNotification(id).catch(() => {});
+  };
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
   return (
-    <div className="space-y-6 max-w-3xl mx-auto pb-10">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 max-w-3xl mx-auto pb-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--color-border)]/50 pb-4">
         <div>
-          <h2 className="text-xl font-bold text-[var(--color-pk-text-primary)]">Notifications</h2>
-          <p className="text-xs text-[var(--color-pk-text-secondary)] mt-0.5">
-            Keep track of your offer updates and system announcements.
+          <h1 className="text-xl font-bold tracking-tight text-[var(--color-text-primary)]">Notifications</h1>
+          <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+            {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}` : "All caught up!"}
           </p>
         </div>
         {notifications.length > 0 && (
@@ -68,58 +99,65 @@ export default function NotificationsPage() {
         )}
       </div>
 
-      {notifications.length > 0 ? (
-        <Card className="border border-[var(--color-pk-border)] bg-[var(--color-pk-surface)] shadow-sm overflow-hidden">
-          <CardContent className="p-0 divide-y divide-[var(--color-pk-border)]">
-            {notifications.map((notif) => (
-              <div 
-                key={notif.id} 
-                onClick={() => markAsRead(notif.id)}
-                className={`flex items-start justify-between p-4 transition-colors cursor-pointer hover:bg-[var(--color-pk-surface-elevated)]/30 ${
-                  notif.read ? "opacity-75" : "bg-[var(--color-pk-surface-elevated)]/10"
-                }`}
-              >
-                <div className="flex items-start flex-1 mr-4">
-                  <div className="mr-3 mt-0.5 rounded-lg bg-[var(--color-pk-surface-elevated)] border border-[var(--color-pk-border)]/50 p-2 flex items-center justify-center">
-                    {getIcon(notif.type)}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className={`text-xs font-bold ${notif.read ? "text-[var(--color-pk-text-secondary)]" : "text-[var(--color-pk-text-primary)]"}`}>
-                      {notif.title}
-                    </h4>
-                    <p className="mt-1 text-[11px] text-[var(--color-pk-text-secondary)] leading-relaxed">
-                      {notif.message}
-                    </p>
-                    <span className="mt-1.5 block text-[10px] text-[var(--color-pk-text-tertiary)]">
-                      {notif.time}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  {!notif.read && (
-                    <div className="h-2 w-2 rounded-full bg-[var(--color-pk-accent)] animate-pulse shrink-0"></div>
-                  )}
-                  <button 
-                    onClick={(e) => deleteNotification(notif.id, e)}
-                    className="p-1 rounded text-[var(--color-pk-text-tertiary)] hover:text-red-500 hover:bg-red-500/10 transition-colors"
-                    title="Delete Notification"
-                  >
-                    <Trash className="h-3.5 w-3.5" />
-                  </button>
-                </div>
+      {/* List */}
+      <Card className="border border-[var(--color-border)] bg-[var(--color-surface-card)] shadow-sm overflow-hidden">
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="space-y-3 p-4">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-16 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="h-12 w-12 rounded-full bg-[var(--color-surface-page)] border border-[var(--color-border)] flex items-center justify-center mb-3">
+                <Bell className="h-6 w-6 text-[var(--color-text-muted)]" />
               </div>
-            ))}
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="border border-[var(--color-pk-border)] bg-[var(--color-pk-surface)] py-12">
-          <EmptyState 
-            title="No new notifications" 
-            description="We'll let you know when your points are credited or your rewards are processed."
-          />
-        </Card>
-      )}
+              <p className="text-sm font-medium text-[var(--color-text-primary)]">No notifications</p>
+              <p className="text-xs text-[var(--color-text-muted)] mt-0.5">You&apos;re all caught up. Check back later!</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-[var(--color-border)]">
+              {notifications.map((n) => {
+                const Icon = iconMap[n.type] || Info;
+                return (
+                  <div
+                    key={n.id}
+                    onClick={() => !n.read && markAsRead(n.id)}
+                    className={`flex items-start gap-3 p-4 transition-colors cursor-pointer group hover:bg-[var(--color-surface-page)]/60 ${!n.read ? "bg-[var(--color-accent)]/5" : ""}`}
+                  >
+                    <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${
+                      n.type === "EARN" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" :
+                      n.type === "REDEEM" ? "bg-[var(--color-accent)]/10 border-[var(--color-accent)]/20 text-[var(--color-text-accent)]" :
+                      "bg-[var(--color-surface-page)] border-[var(--color-border)] text-[var(--color-text-muted)]"
+                    }`}>
+                      <Icon className="h-3.5 w-3.5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className={`text-xs font-bold truncate ${!n.read ? "text-[var(--color-text-primary)]" : "text-[var(--color-text-inverse)]"}`}>
+                          {n.title}
+                        </p>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {!n.read && <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />}
+                          <span className="text-[9px] text-[var(--color-text-muted)]">{timeAgo(n.created_at)}</span>
+                          <button
+                            onClick={(e) => deleteNotification(n.id, e)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--color-text-muted)] hover:text-[var(--color-danger)]"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5 leading-relaxed">{n.message}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

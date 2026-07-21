@@ -5,14 +5,32 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card, CardContent, CardFooter } from "@/components/ui/Card";
 import Link from "next/link";
-import { AlertCircle, ArrowLeft } from "lucide-react";
+import { AlertCircle, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { FloatingPaths } from "@/components/ui/background-paths";
+
+function getFirebaseErrorMessage(code: string): string {
+  switch (code) {
+    case "auth/invalid-credential":
+    case "auth/wrong-password":
+    case "auth/user-not-found":
+      return "Invalid email or password. Please try again.";
+    case "auth/too-many-requests":
+      return "Too many failed attempts. Please try again later or reset your password.";
+    case "auth/user-disabled":
+      return "This account has been disabled. Please contact support.";
+    case "auth/network-request-failed":
+      return "Network error. Please check your internet connection.";
+    default:
+      return "Failed to sign in. Please try again.";
+  }
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -27,7 +45,7 @@ export default function LoginPage() {
       await signIn(email, password);
       router.push("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Failed to log in");
+      setError(getFirebaseErrorMessage(err.code));
     } finally {
       setIsLoading(false);
     }
@@ -72,31 +90,43 @@ export default function LoginPage() {
             <CardContent className="space-y-4 pt-6">
               {error && (
                 <div className="flex items-start space-x-2 rounded-md bg-[var(--color-danger)]/10 p-3 text-sm text-[var(--color-danger)]">
-                  <AlertCircle className="h-4.5 w-4.5 shrink-0 mt-0.5" />
+                  <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                   <span className="leading-tight">{error}</span>
                 </div>
               )}
+              <Input
+                label="Email Address"
+                type="email"
+                id="login-email"
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+                className="bg-[var(--color-surface-page)]/50 focus:bg-[var(--color-surface-card)]"
+              />
               <div className="space-y-1">
-                <Input
-                  label="Email Address"
-                  type="email"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="bg-[var(--color-surface-page)]/50 focus:bg-[var(--color-surface-card)]"
-                />
-              </div>
-              <div className="space-y-1">
-                <Input
-                  label="Password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="bg-[var(--color-surface-page)]/50 focus:bg-[var(--color-surface-card)]"
-                />
+                <div className="relative">
+                  <Input
+                    label="Password"
+                    type={showPassword ? "text" : "password"}
+                    id="login-password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                    className="bg-[var(--color-surface-page)]/50 focus:bg-[var(--color-surface-card)] pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 bottom-2.5 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 <div className="text-right pt-1">
                   <Link href="/reset-password" className="text-xs font-medium text-[var(--color-text-accent)] hover:underline">
                     Forgot password?

@@ -1,4 +1,3 @@
-import "server-only";
 import { supabaseRequest } from "@/lib/supabase";
 
 export type TransactionType = "CREDIT" | "PENDING_CREDIT" | "REDEMPTION" | "REVERSAL" | "BONUS" | "MANUAL";
@@ -22,6 +21,11 @@ export interface Wallet {
   pendingPoints: number;
   redeemedPoints: number;
   lastUpdated: string;
+  user_id: string;
+  available_points: number;
+  pending_points: number;
+  redeemed_points: number;
+  updated_at: string;
 }
 
 // Ensure a wallet row exists, create if not
@@ -30,12 +34,22 @@ async function ensureWalletExists(userId: string): Promise<Wallet> {
   
   if (wallets && wallets.length > 0) {
     const w = wallets[0];
+    const available = Number(w.available_points || 0);
+    const pending = Number(w.pending_points || 0);
+    const redeemed = Number(w.redeemed_points || 0);
+    const updatedAt = w.updated_at || new Date().toISOString();
+
     return {
       userId: w.user_id,
-      availablePoints: Number(w.available_points),
-      pendingPoints: Number(w.pending_points),
-      redeemedPoints: Number(w.redeemed_points),
-      lastUpdated: w.updated_at,
+      availablePoints: available,
+      pendingPoints: pending,
+      redeemedPoints: redeemed,
+      lastUpdated: updatedAt,
+      user_id: w.user_id,
+      available_points: available,
+      pending_points: pending,
+      redeemed_points: redeemed,
+      updated_at: updatedAt,
     };
   }
 
@@ -45,7 +59,7 @@ async function ensureWalletExists(userId: string): Promise<Wallet> {
   if (!users || users.length === 0) {
     await supabaseRequest("users", {
       method: "POST",
-      body: { id: userId, name: "Rahul Kumar", email: "rahul@example.com" },
+      body: { id: userId },
     });
   }
 
@@ -60,12 +74,19 @@ async function ensureWalletExists(userId: string): Promise<Wallet> {
   });
 
   const w = created[0];
+  const updatedAt = w.updated_at || new Date().toISOString();
+
   return {
     userId: w.user_id,
-    availablePoints: Number(w.available_points),
-    pendingPoints: Number(w.pending_points),
-    redeemedPoints: Number(w.redeemed_points),
-    lastUpdated: w.updated_at,
+    availablePoints: Number(w.available_points || 0),
+    pendingPoints: Number(w.pending_points || 0),
+    redeemedPoints: Number(w.redeemed_points || 0),
+    lastUpdated: updatedAt,
+    user_id: w.user_id,
+    available_points: Number(w.available_points || 0),
+    pending_points: Number(w.pending_points || 0),
+    redeemed_points: Number(w.redeemed_points || 0),
+    updated_at: updatedAt,
   };
 }
 
@@ -76,12 +97,18 @@ export const walletService = {
       return await ensureWalletExists(userId);
     } catch (e) {
       console.error("Failed to get wallet balance:", e);
+      const now = new Date().toISOString();
       return {
         userId,
         availablePoints: 0,
         pendingPoints: 0,
         redeemedPoints: 0,
-        lastUpdated: new Date().toISOString(),
+        lastUpdated: now,
+        user_id: userId,
+        available_points: 0,
+        pending_points: 0,
+        redeemed_points: 0,
+        updated_at: now,
       };
     }
   },
@@ -222,19 +249,20 @@ export const walletService = {
     return txId;
   },
 
-  async getTransactionHistory(userId: string, limit = 50): Promise<PointTransaction[]> {
+  async getTransactionHistory(userId: string, limit = 50): Promise<any[]> {
     try {
       const txs = await supabaseRequest(`transactions?user_id=eq.${userId}&order=created_at.desc&limit=${limit}`);
       if (!txs) return [];
+      // Return raw DB fields so client components can use them directly
       return txs.map((t: any) => ({
         id: t.id,
-        userId: t.user_id,
+        user_id: t.user_id,
         type: t.type,
         amount: Number(t.amount),
-        provider: t.provider,
-        referenceId: t.external_tx_id,
+        provider: t.provider || "",
+        external_tx_id: t.external_tx_id,
         status: t.status,
-        createdAt: t.created_at,
+        created_at: t.created_at,
       }));
     } catch (e) {
       console.error("Failed to fetch transaction history:", e);

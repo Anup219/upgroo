@@ -43,7 +43,7 @@ export default function EarnPage() {
       description: "High-paying offers, games, video rewards, and surveys verified instantly.",
       rating: "4.9/5",
       pointsRange: "100 - 50,000 pts",
-      status: "ACTIVE",
+      status: "COMING_SOON",
       icon: Zap,
     },
     {
@@ -132,6 +132,16 @@ export default function EarnPage() {
         <p className="text-[var(--color-pk-text-secondary)]">
           Choose a partner wall below to complete offers, download apps, and answer surveys.
         </p>
+      </div>
+
+      <div className="rounded-xl border border-[var(--color-pk-accent)]/20 bg-[var(--color-pk-accent)]/5 p-4 text-[var(--color-pk-text-primary)] flex items-start gap-3">
+        <Sparkles className="h-5 w-5 text-[var(--color-pk-accent)] shrink-0 mt-0.5" />
+        <div className="text-xs space-y-1">
+          <p className="font-semibold text-sm">Offerwalls Integration Coming Soon!</p>
+          <p className="text-[var(--color-pk-text-secondary)] leading-relaxed">
+            We are currently partnering with top reward providers to bring you verified, high-payout offerwalls and surveys. Stay tuned as new partner walls launch shortly!
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
