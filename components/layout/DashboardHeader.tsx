@@ -17,7 +17,7 @@ export function DashboardHeader({ title }: DashboardHeaderProps) {
       
       <div className="flex items-center space-x-4">
         <Link 
-          href="/dashboard/notifications" 
+          href="/notifications" 
           className="relative rounded-full p-2 text-[var(--color-pk-text-secondary)] hover:bg-[var(--color-pk-surface-elevated)] hover:text-[var(--color-pk-text-primary)] transition-colors"
         >
           <Bell className="h-5 w-5" />

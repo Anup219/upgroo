@@ -41,13 +41,32 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Protect admin routes — redirect to login if no session
+  // Protect admin routes — verify session and admin role at Edge level
   if (isAdminRoute) {
-    if (!session) {
+    if (!session?.value) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
-    // Full admin claim verification happens server-side in the page/layout.
-    // Middleware just ensures the user is authenticated.
+
+    try {
+      // Decode JWT payload without external libraries in Edge runtime
+      const parts = session.value.split(".");
+      if (parts.length === 3) {
+        const payloadBase64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+        const payloadJson = atob(payloadBase64);
+        const payload = JSON.parse(payloadJson);
+        const email = (payload.email || "").toLowerCase().trim();
+        const isAdmin = payload.admin === true || ADMIN_EMAILS.includes(email);
+
+        if (!isAdmin) {
+          return NextResponse.redirect(new URL("/dashboard", request.url));
+        }
+      } else {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+      }
+    } catch {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
     return NextResponse.next();
   }
 

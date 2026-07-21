@@ -81,10 +81,10 @@ export function Sidebar() {
           {isAdmin && (
             <div className="pt-4 mt-4 border-t border-[var(--color-border)]">
               <Link
-                href="/redemptions"
-                aria-current={pathname.startsWith("/redemptions") ? "page" : undefined}
+                href="/admin"
+                aria-current={pathname.startsWith("/admin") ? "page" : undefined}
                 className={`${linkBase} ${
-                  pathname.startsWith("/redemptions") ? activeLink : inactiveLink
+                  pathname.startsWith("/admin") ? activeLink : inactiveLink
                 }`}
               >
                 <ShieldAlert className="mr-3 h-4 w-4 shrink-0 text-[var(--color-danger)]" aria-hidden="true" />
